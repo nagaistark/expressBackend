@@ -1,0 +1,7 @@
+{
+   "CreatePatientVSchema": [
+      "allergies",
+      "immunizations",
+      "medicalHistory"
+   ]
+}
