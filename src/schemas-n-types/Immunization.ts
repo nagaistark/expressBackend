@@ -12,8 +12,8 @@ import {
 } from 'valibot';
 
 import { validateDateField } from '@utils/validateDateField';
-import { DoctorIdOrExternal } from '@/schemas/DoctorOrExternal';
-import { ValidVaccineReference } from '@schemas/ValidModelRefs';
+import { DoctorIdOrExternal } from '@/schemas-n-types/DoctorOrExternal';
+import { ValidVaccineReference } from '@/schemas-n-types/ValidModelRefs';
 
 export const CreateImmunizationVSchema = strictObjectAsync({
    vaccine: ValidVaccineReference,
@@ -23,6 +23,5 @@ export const CreateImmunizationVSchema = strictObjectAsync({
    notes: optional(string()),
 });
 
-export type CreateImmunizationOutput = InferOutput<
-   typeof CreateImmunizationVSchema
->;
+export type IImmunization = InferOutput<typeof CreateImmunizationVSchema>;
+export type IAdministeredBy = InferOutput<typeof DoctorIdOrExternal>;

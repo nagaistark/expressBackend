@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { DiagnosisModel } from '@models/Diagnosis';
-import { IDiagnosis } from '@mytypes/Diagnosis';
+import { IDiagnosis } from '@schemas/Diagnosis';
 import { deleteById, deleteAll } from '@controllers/common/deleteController';
 import { getById, getAll } from '@controllers/common/readController';
 import { createOne, createMany } from '@controllers/common/createController';

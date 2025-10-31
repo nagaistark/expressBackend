@@ -26,4 +26,4 @@ export const AddressVSchema = object({
    ),
 });
 
-export type AddressOutput = InferOutput<typeof AddressVSchema>;
+export type IAddress = InferOutput<typeof AddressVSchema>;

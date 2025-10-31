@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IDiagnosis } from '@mytypes/Diagnosis';
+import { IDiagnosis } from '@/schemas-n-types/Diagnosis';
 
 const diagnosisMSchema = new Schema<IDiagnosis>({
    kind: {

@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IAdministeredBy, IImmunization } from '@mytypes/Immunization';
+import { IAdministeredBy, IImmunization } from '@/schemas-n-types/Immunization';
 
 const administeredBySchema = new Schema(
    {

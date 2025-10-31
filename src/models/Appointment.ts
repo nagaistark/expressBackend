@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { APP_STATUS, IAppointment } from '@mytypes/Appointment';
+import { APP_STATUS, IAppointment } from '@/schemas-n-types/Appointment';
 
 export const appointmentSchema = new Schema<IAppointment>(
    {

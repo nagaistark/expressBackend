@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { addressMSchema } from '@models/Address';
-import { IEmergencyContact } from '@mytypes/EmergencyContact';
+import { IEmergencyContact } from '@/schemas-n-types/EmergencyContact';
 
 export const emergencyContactMSchema = new Schema<IEmergencyContact>(
    {

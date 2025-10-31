@@ -1,4 +1,4 @@
-import { CreatePatientVSchema } from '@schemas/Patient';
+import { CreatePatientVSchema } from '@/schemas-n-types/Patient';
 
 type Path = (string | number)[];
 

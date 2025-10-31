@@ -22,4 +22,4 @@ export const CreateVaccineVSchema = strictObject({
    ),
 });
 
-export type CreateVaccineOutput = InferOutput<typeof CreateVaccineVSchema>;
+export type IVaccine = InferOutput<typeof CreateVaccineVSchema>;

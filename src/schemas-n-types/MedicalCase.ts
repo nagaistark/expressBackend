@@ -16,7 +16,7 @@ import { validateDateField } from '@utils/validateDateField';
 import {
    ValidDoctorReference,
    ValidDiagnosisReference,
-} from '@schemas/ValidModelRefs';
+} from '@/schemas-n-types/ValidModelRefs';
 
 export const CreateMedicalCaseVSchema = strictObjectAsync({
    diagnosis: ValidDiagnosisReference,
@@ -42,6 +42,4 @@ export const CreateMedicalCaseVSchema = strictObjectAsync({
    notes: optional(string()),
 });
 
-export type CreateMedicalCaseOutput = InferOutput<
-   typeof CreateMedicalCaseVSchema
->;
+export type IMedicalCase = InferOutput<typeof CreateMedicalCaseVSchema>;

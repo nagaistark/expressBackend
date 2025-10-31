@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { IAddress } from '@mytypes/Address';
+import { IAddress } from '@/schemas-n-types/Address';
 import { isValidCanadianPostalCode } from '@utils/isValidCanadianPostalCode';
 
 export const addressMSchema = new Schema<IAddress>(

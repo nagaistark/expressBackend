@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IVaccine } from '@mytypes/Vaccine';
+import { IVaccine } from '@/schemas-n-types/Vaccine';
 
 const vaccineSchema = new Schema<IVaccine>({
    kind: { type: String, required: true, default: 'vaccine', immutable: true },

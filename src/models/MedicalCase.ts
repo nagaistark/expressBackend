@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { SEVERITIES } from '@lib/constants';
-import { IMedicalCase } from '@mytypes/MedicalCase';
+import { IMedicalCase } from '@/schemas-n-types/MedicalCase';
 
 export const medicalCaseMSchema = new Schema<IMedicalCase>(
    {

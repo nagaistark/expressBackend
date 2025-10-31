@@ -13,8 +13,8 @@ import {
 
 import { ValidatePhone } from '@validators/valibot/ValidatePhone';
 import { ValidateDOB } from '@lib/age';
-import { AddressVSchema } from '@schemas/Address';
-import { GenderVSchema } from '@schemas/Gender';
+import { AddressVSchema } from '@/schemas-n-types/Address';
+import { GenderVSchema } from '@/schemas-n-types/Gender';
 
 export const CreateDoctorVSchema = strictObjectAsync({
    kind: literal('doctor'),
@@ -40,4 +40,4 @@ export const CreateDoctorVSchema = strictObjectAsync({
    ),
 });
 
-export type CreateDoctorOutput = InferOutput<typeof CreateDoctorVSchema>;
+export type IDoctor = InferOutput<typeof CreateDoctorVSchema>;

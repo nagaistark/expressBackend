@@ -12,4 +12,4 @@ export const CreateAllergenVSchema = strictObject({
    name: pipe(string(), minLength(1, 'Allergen name is required (Valibot)')),
 });
 
-export type CreateAllergenOutput = InferOutput<typeof CreateAllergenVSchema>;
+export type IAllergen = InferOutput<typeof CreateAllergenVSchema>;

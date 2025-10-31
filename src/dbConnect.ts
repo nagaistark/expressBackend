@@ -1,82 +1,134 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import logger from './logger.ts';
 
 // Load the appropriate .env file
 dotenv.config({
-   path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
+   path:
+      process.env.NODE_ENV?.toLowerCase() === 'production'
+         ? '.env.production'
+         : '.env',
 });
 
 const URI =
-   process.env.NODE_ENV === 'production'
+   process.env.NODE_ENV?.toLowerCase() === 'production'
       ? process.env.DATABASE_URL
       : process.env.DB_URI;
 
 if (!URI) {
-   throw new Error(
-      'MongoDB connection URI is not defined in environment variables'
-   );
+   const errMsg =
+      'MongoDB connection URI is not defined in environment variables';
+   logger.error(errMsg);
+   throw new Error(errMsg);
 }
 
-// This will be passed to Graceful Shutdown
+let isIntentionalDisconnection: boolean = false;
 let reconnectTries = 0;
 const reconnectMaxTries = 10;
 
+// The readyState Codes
+const getMongoState = (): string => {
+   switch (mongoose.connection.readyState) {
+      case 0:
+         return 'disconnected from';
+      case 1:
+         return 'connected to';
+      case 2:
+         return 'connecting to';
+      case 3:
+         return 'disconnecting from';
+      default:
+         return 'unknown';
+   }
+};
+
 const connectDB = async (): Promise<void> => {
-   if (mongoose.connection.readyState === 1) {
-      console.log('Already connected to MongoDB');
+   if (mongoose.connection.readyState !== 0) {
+      logger.info(`Already ${getMongoState()} MongoDB`);
       return;
    }
 
    try {
-      await mongoose.connect(URI);
-      console.time('MongoWarmUp');
+      await mongoose.connect(URI, {
+         maxPoolSize: 10,
+         serverSelectionTimeoutMS: 5000,
+         autoIndex: process.env.NODE_ENV !== 'production',
+      });
+      const start = Date.now();
       await mongoose.connection.db?.command({ ping: 1 });
-      console.timeEnd('MongoWarmUp');
-      console.log('MongoDB connected successfully!');
+      logger.info(`MongoWarmUp took ${Date.now() - start}ms`);
+      logger.info('MongoDB connected successfully!');
    } catch (err) {
-      console.error('MongoDB initial connection error:', err);
-      process.exit(1);
+      const sanitizedMsg =
+         err instanceof Error
+            ? err.message.replace(
+                 /mongodb(\+srv)?:\/\/[^@]*@/,
+                 'mongodb://***@'
+              )
+            : String(err);
+      logger.error(`MongoDB initial connection error: ${sanitizedMsg}`);
+      throw err;
    }
 };
 
-let isIntentionalDisconnection = false;
-
 const handleDisconnection = async (): Promise<void> => {
    if (isIntentionalDisconnection) {
-      console.log('Intentional disconnection, skipping reconnect');
+      logger.info('Intentional disconnection, skipping reconnect');
       return;
    }
 
-   if (reconnectTries < reconnectMaxTries) {
-      const delay = Math.pow(2, reconnectTries) * 1000;
+   // Check if already connected or connecting
+   if (
+      mongoose.connection.readyState === 1 ||
+      mongoose.connection.readyState === 2
+   ) {
+      logger.info('Connection already established or in progress');
+      return;
+   }
 
-      setTimeout(async () => {
-         try {
-            console.log(`Reconnection attempt #${reconnectTries + 1}`);
-            await mongoose.connect(URI, { maxPoolSize: 10 });
-            console.log('MongoDB reconnected!');
-            reconnectTries = 0;
-         } catch (err) {
-            reconnectTries++;
-            console.error(`Reconnect attempt ${reconnectTries} failed:`, err);
-            handleDisconnection();
-         }
-      }, delay);
-   } else {
-      console.error('Max reconnection attempts reached. Exiting process.');
+   if (reconnectTries >= reconnectMaxTries) {
+      logger.error('Max reconnection attempts reached. Exiting process.');
       process.exit(1);
    }
+
+   const delay = Math.min(Math.pow(2, reconnectTries) * 1000, 30000);
+   logger.info(
+      `Scheduling reconnection attempt #${reconnectTries + 1} in ${delay}ms`
+   );
+
+   setTimeout(async () => {
+      // Recheck connection state before attempting
+      if (mongoose.connection.readyState === 1) {
+         logger.info('Connection recovered before scheduled reconnect');
+         reconnectTries = 0;
+         return;
+      }
+
+      try {
+         logger.info(`Executing reconnection attempt #${reconnectTries + 1}`);
+         await mongoose.connect(URI, { maxPoolSize: 10 });
+         logger.info('MongoDB reconnected successfully!');
+         reconnectTries = 0;
+      } catch (err) {
+         reconnectTries++;
+         logger.error(`Reconnect attempt ${reconnectTries} failed: ${err}`);
+
+         // Schedule the next attempt asynchronously
+         // This allows the current timeout to complete and clean up
+         setImmediate(() => handleDisconnection());
+      }
+   }, delay);
 };
 
 const closeDB = async (): Promise<void> => {
    try {
       isIntentionalDisconnection = true;
-      console.log('🟡 Calling mongoose.disconnect()');
+      logger.info('[PENDING] Calling mongoose.disconnect()');
       await mongoose.disconnect();
-      console.log('🟢 MongoDB connection closed');
+      logger.info('[CLOSED] MongoDB connection closed');
    } catch (err) {
-      console.error('Error closing MongoDB connection', err);
-      process.exit(1);
+      logger.error(`Error closing MongoDB connection: ${err}`);
+      throw err;
    }
 };
 
@@ -84,39 +136,64 @@ const gracefulShutdown = async (
    signal: NodeJS.Signals,
    server?: import('http').Server
 ): Promise<void> => {
-   console.log(`${signal} received. Shutting down gracefully...`);
+   logger.info(`${signal} received. Shutting down gracefully...`);
 
    try {
       if (server) {
+         const shutdownTimeout = setTimeout(() => {
+            logger.warn('Graceful shutdown timeout – forcing close');
+            process.exit(1);
+         }, 30000);
+
          await new Promise<void>((resolve, reject) => {
-            server.close(err => (err ? reject(err) : resolve()));
+            server.close(err => {
+               clearTimeout(shutdownTimeout); // ✅ Clear timeout on success
+               err ? reject(err) : resolve();
+            });
          });
-         console.log('Server closed');
+         logger.info('Server closed');
       }
       await closeDB();
-      console.log('Graceful shutdown complete');
+      logger.info('Graceful shutdown complete');
       process.exit(0);
    } catch (err) {
-      console.error('Error during shutdown:', err);
+      logger.error(`Error during shutdown: ${err}`);
       process.exit(1);
    }
 };
 
-// Bind DB events
+// Get reference to the mongoose connection
 const mongooseConnection = mongoose.connection;
 
+// CRITICAL: Remove any existing listeners before registering new ones
+// This prevents listener accumulation during hot reloads in development
+// When tsx watch reloads this module, the old listeners remain on the
+// singleton mongoose.connection object, so we must clean them up first
+const removeEventListeners = (): void => {
+   mongooseConnection.removeAllListeners('connecting');
+   mongooseConnection.removeAllListeners('error');
+   mongooseConnection.removeAllListeners('connected');
+   mongooseConnection.removeAllListeners('disconnected');
+   mongooseConnection.removeAllListeners('reconnected');
+   mongooseConnection.removeAllListeners('open');
+   mongooseConnection.removeAllListeners('close');
+};
+
+removeEventListeners();
+
+// Now register fresh event listeners
+// These will be the only listeners after the cleanup above
 mongooseConnection.on('connecting', () =>
-   console.log('Attempting MongoDB connection...')
+   logger.info('Attempting MongoDB connection...')
 );
 mongooseConnection.on('error', err =>
-   console.error('MongoDB connection error:', err)
+   logger.error(`MongoDB connection error: ${err}`)
 );
-mongooseConnection.on('connected', () => console.log('Connected to MongoDB!'));
-// mongooseConnection.on('disconnected', handleDisconnection);
-mongooseConnection.on('reconnected', () => console.log('MongoDB reconnected!'));
-mongooseConnection.once('open', () => console.log('MongoDB connection open!'));
+mongooseConnection.on('connected', () => logger.info('Connected to MongoDB!'));
+mongooseConnection.on('disconnected', handleDisconnection);
+mongooseConnection.on('reconnected', () => logger.info('MongoDB reconnected!'));
 mongooseConnection.on('close', () =>
-   console.log('MongoDB connection closed manually.')
+   logger.info('MongoDB connection closed manually.')
 );
 
 export { connectDB, gracefulShutdown, closeDB, mongooseConnection };

@@ -22,4 +22,4 @@ export const CreateDiagnosisVSchema = strictObject({
    ),
 });
 
-export type CreateDiagnosisOutput = InferOutput<typeof CreateDiagnosisVSchema>;
+export type IDiagnosis = InferOutput<typeof CreateDiagnosisVSchema>;

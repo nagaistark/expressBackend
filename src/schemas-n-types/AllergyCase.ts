@@ -10,7 +10,7 @@ import {
 } from 'valibot';
 import { SEVERITIES } from '@lib/constants';
 import { validateDateField } from '@utils/validateDateField';
-import { ValidAllergenReference } from '@schemas/ValidModelRefs';
+import { ValidAllergenReference } from '@/schemas-n-types/ValidModelRefs';
 
 export const CreateAllergyCaseVSchema = strictObjectAsync({
    substance: ValidAllergenReference,
@@ -25,6 +25,4 @@ export const CreateAllergyCaseVSchema = strictObjectAsync({
    notes: optional(string()),
 });
 
-export type CreateAllergyCaseOutput = InferOutput<
-   typeof CreateAllergyCaseVSchema
->;
+export type IAllergyCase = InferOutput<typeof CreateAllergyCaseVSchema>;

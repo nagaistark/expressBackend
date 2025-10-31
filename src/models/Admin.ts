@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IAdmin } from '@mytypes/Admin';
+import { IAdmin } from '@/schemas-n-types/Admin';
 import { isValidNANPPhoneNumber } from '@validators/mongoose/isValidNANPPhoneNumber';
 import { GENDERS } from '@lib/constants';
 import { addressMSchema } from '@models/Address';

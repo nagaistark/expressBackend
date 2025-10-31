@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IDoctor } from '@mytypes/Doctor';
+import { IDoctor } from '@/schemas-n-types/Doctor';
 
 import { GENDERS } from '@lib/constants';
 import { isAgeWithinRange } from '@lib/age';

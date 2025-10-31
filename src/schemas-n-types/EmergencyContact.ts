@@ -8,7 +8,7 @@ import {
    InferOutput,
 } from 'valibot';
 import { ValidatePhone } from '@validators/valibot/ValidatePhone';
-import { AddressVSchema } from '@schemas/Address';
+import { AddressVSchema } from '@/schemas-n-types/Address';
 
 export const CreateEmergencyContactVSchema = strictObjectAsync({
    name: pipe(string(), trim(), minLength(1, 'Name is required (Valibot)')),
@@ -21,6 +21,6 @@ export const CreateEmergencyContactVSchema = strictObjectAsync({
    address: optional(AddressVSchema),
 });
 
-export type EmergencyContactOutput = InferOutput<
+export type IEmergencyContact = InferOutput<
    typeof CreateEmergencyContactVSchema
 >;

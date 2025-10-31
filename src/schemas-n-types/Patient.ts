@@ -21,12 +21,12 @@ import {
 import { BLOOD_TYPES, EMBEDDED_ARRAY_FIELDS } from '@lib/constants';
 import { ValidatePhone } from '@validators/valibot/ValidatePhone';
 import { ValidateDOB } from '@lib/age';
-import { AddressVSchema } from '@schemas/Address';
-import { GenderVSchema } from '@schemas/Gender';
-import { CreateAllergyCaseVSchema } from '@schemas/AllergyCase';
-import { CreateImmunizationVSchema } from '@schemas/Immunization';
-import { CreateMedicalCaseVSchema } from '@schemas/MedicalCase';
-import { CreateEmergencyContactVSchema } from '@schemas/EmergencyContact';
+import { AddressVSchema } from '@/schemas-n-types/Address';
+import { GenderVSchema } from '@/schemas-n-types/Gender';
+import { CreateAllergyCaseVSchema } from '@/schemas-n-types/AllergyCase';
+import { CreateImmunizationVSchema } from '@/schemas-n-types/Immunization';
+import { CreateMedicalCaseVSchema } from '@/schemas-n-types/MedicalCase';
+import { CreateEmergencyContactVSchema } from '@/schemas-n-types/EmergencyContact';
 import { DoctorModel } from '@models/Doctor';
 import { ValidTypedModelReference } from '@utils/validModelReference';
 import {
@@ -73,7 +73,9 @@ export const CreatePatientVSchema = strictObjectAsync({
    verified: boolean('Boolean is required (Valibot)'),
 });
 
+export type CreatePatientOutput = InferOutput<typeof CreatePatientVSchema>;
+
 export const CreatePatient_HCArrayKeys: TypeSafeArrayKeys<CreatePatientOutput>[] =
    ['allergies', 'immunizations', 'medicalHistory'];
 
-export type CreatePatientOutput = InferOutput<typeof CreatePatientVSchema>;
+export type IPatient = InferOutput<typeof CreatePatientVSchema>;

@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IAllergen } from '@mytypes/Allergen';
+import { IAllergen } from '@/schemas-n-types/Allergen';
 
 export const allergenSchema = new Schema<IAllergen>({
    kind: { type: String, required: true, default: 'allergen', immutable: true },

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { IAllergyCase } from '@mytypes/AllergyCase';
+import { IAllergyCase } from '@/schemas-n-types/AllergyCase';
 import { SEVERITIES } from '@lib/constants';
 
 export const allergyCaseMSchema = new Schema<IAllergyCase>(

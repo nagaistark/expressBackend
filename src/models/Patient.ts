@@ -9,7 +9,7 @@ import { immunizationCaseMSchema } from '@models/Immunization';
 import { medicalCaseMSchema } from '@models/MedicalCase';
 import { emergencyContactMSchema } from '@models/EmergencyContact';
 
-import { IPatient } from '@mytypes/Patient';
+import { IPatient } from '@/schemas-n-types/Patient';
 
 export const patientMSchema = new Schema<IPatient>(
    {

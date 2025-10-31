@@ -8,7 +8,7 @@ import { createOne, createMany } from '@controllers/common/createController';
 import { updateById, updateMany } from '@controllers/common/updateController';
 
 import { validateBody } from '@middleware/validateBody';
-import { CreateDoctorVSchema } from '@schemas/Doctor';
+import { CreateDoctorVSchema } from '@/schemas-n-types/Doctor';
 
 const router = Router();
 

@@ -12,8 +12,8 @@ import {
 
 import { ValidatePhone } from '@validators/valibot/ValidatePhone';
 import { ValidateDOB } from '@lib/age';
-import { AddressVSchema } from '@schemas/Address';
-import { GenderVSchema } from '@schemas/Gender';
+import { AddressVSchema } from '@/schemas-n-types/Address';
+import { GenderVSchema } from '@/schemas-n-types/Gender';
 import { TypeSafeArrayKeys } from '@utils/validateArrayKeys';
 
 export const CreateAdminVSchema = strictObjectAsync({
@@ -36,4 +36,4 @@ export const CreateAdminVSchema = strictObjectAsync({
    role: pipe(string(), trim(), minLength(1, 'Role is required (Valibot)')),
 });
 
-export type CreateAdminOutput = InferOutput<typeof CreateAdminVSchema>;
+export type IAdmin = InferOutput<typeof CreateAdminVSchema>;

@@ -1,4 +1,4 @@
-import { ValidDoctorReference } from '@schemas/ValidModelRefs';
+import { ValidDoctorReference } from '@/schemas-n-types/ValidModelRefs';
 import {
    pipe,
    string,
@@ -8,6 +8,7 @@ import {
    optional,
    strictObjectAsync,
    unionAsync,
+   InferOutput,
 } from 'valibot';
 
 export const DoctorIdOrExternal = unionAsync([
